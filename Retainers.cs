@@ -205,11 +205,12 @@ namespace Retainers
 
             Logging.Write("Found nearest bell: {0} Distance: {1}", bell, bell.Distance2D(Core.Me.Location));
 
+/* This only works with the Yield but the yield also throws exceptions (but still works) */
             if (bell.Distance2D(Core.Me.Location) >= 3)
             {
                 await CommonBehaviors.MoveAndStop(
                     r => bell.Location, r => 2.5f, true,
-                    "Following selected target")
+                    "Moving to the Bell")
                     .ExecuteCoroutine();
 
                 try
