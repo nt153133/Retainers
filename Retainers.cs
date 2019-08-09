@@ -81,6 +81,8 @@ namespace Retainers
         }
 
 
+        //The await sleeps shouldn't be necessary but if they aren't there the game crashes some times since
+        //it tries to send commands to a window that isn't open even though it reports it as open (guess it didn't load yet)
         private async Task<bool> RetainerTest()
         {
  
@@ -175,18 +177,6 @@ namespace Retainers
                 }
 
                 RetainerList.Close();
-
-
-                //                foreach (var item in ff14bot.Managers.InventoryManager.FilledSlots.Where(x => x.BagId == InventoryBagId.Bag1 || x.BagId == InventoryBagId.Bag2 || x.BagId == InventoryBagId.Bag3 || x.BagId == InventoryBagId.Bag4))
-                //                {
-                //                    if (item.Item.AetherialReductionIndex > 0)
-                //                    {
-                //                        Log("Name: " + item.Item.EnglishName + "\tItemCategory: " + item.Item.EquipmentCatagory + "\tId: " +
-                //                            item.Item.Id + "\tAE " + item.Item.AetherialReductionIndex);
-                //
-                //                        AetherialReductionResult result = await CommonTasks.AetherialReduction(item);
-                //                    }
-                //                }
 
                 done = true;
 

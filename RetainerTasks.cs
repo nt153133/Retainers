@@ -24,7 +24,7 @@ namespace Retainers
                 Logging.Write("Retainer task window not open");
                 return false;
             }
-
+            
             return SelectString.ClickLineEquals(RetainerTaskStrings.Inventory);
         }
 
@@ -62,13 +62,14 @@ namespace Retainers
 
         internal static class RetainerTaskStrings
         {
+            //For partial string searches use SelectIconString.ClickLineContains(string) and not Equals
             internal static string Inventory = "Entrust or withdraw items.";
             internal static string Gil = "Entrust or withdraw gil.";
             internal static string SellYourInventory = "Sell items in your inventory on the market";
             internal static string SellRetainerInventory = "Sell items in your retainer's inventory on the market.";
             internal static string SaleHistory = "View sale history.";
             internal static string ViewVentureReport = "View venture report."; //Use Partial Search
-            internal static string AssignVenture = "Assign venture."; //Use Partial Search
+            internal static string AssignVenture = "Assign venture."; //Use Partial Search since it adds (Complete) or (In Progress)
             internal static string ViewGear = "View retainer attributes and gear.";
             internal static string ResetClass = "Reset retainer class."; //Use Partial Search
             internal static string Quit = "Quit.";
