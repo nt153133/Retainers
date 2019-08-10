@@ -8,6 +8,7 @@ using Clio.Utilities;
 using ff14bot;
 using ff14bot.AClasses;
 using ff14bot.Behavior;
+using ff14bot.Enums;
 using ff14bot.Helpers;
 using ff14bot.Managers;
 using ff14bot.Navigation;
@@ -136,6 +137,16 @@ namespace Retainers
                             }
 
                         Log("Inventory done");
+
+                        Log("Checking against player inventory");
+
+                        foreach (var item in ff14bot.Managers.InventoryManager.FilledSlots.Where(x => x.BagId == InventoryBagId.Bag1 || x.BagId == InventoryBagId.Bag2 || x.BagId == InventoryBagId.Bag3 || x.BagId == InventoryBagId.Bag4))
+                        {
+                            if (inventory.HasItem(item.TrueItemId))
+                                Log("BOTH PLAYER AND RETAINER HAVE Name: " + item.Item.EnglishName + "\tItemCategory: " + item.Item.EquipmentCatagory + "\tId: " + item.Item.Id);
+                        }
+
+                        Log("Done checking against player inventory");
 
                         RetainerTasks.CloseInventory();
 
