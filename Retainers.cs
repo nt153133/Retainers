@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using Buddy.Coroutines;
@@ -81,8 +82,8 @@ namespace Retainers
         }
 
 
-        //The await sleeps shouldn't be necessary but if they aren't there the game crashes some times since
-        //it tries to send commands to a window that isn't open even though it reports it as open (guess it didn't load yet)
+        /*The await sleeps shouldn't be necessary but if they aren't there the game crashes some times since
+        it tries to send commands to a window that isn't open even though it reports it as open (guess it didn't load yet)*/
         private async Task<bool> RetainerTest()
         {
  
@@ -102,6 +103,8 @@ namespace Retainers
 
                 for (retainerIndex = 0; retainerIndex < numRetainers; retainerIndex++)
                 {
+                    RetainerInventory inventory = new RetainerInventory();
+
                     if (!RetainerList.IsOpen)
                     {
                         await UseSummoningBell();
@@ -135,12 +138,14 @@ namespace Retainers
                         foreach (Bag retbag in ff14bot.Managers.InventoryManager.GetBagsByInventoryBagId(RetainerTasks
                             .RetainerBagIds))
                         {
-                            foreach (var item in retbag.FilledSlots)
+                            foreach (BagSlot item in retbag.FilledSlots)
                             {
                                 try
                                 {
-                                    Log("Name: " + item.Item.EnglishName + "\tCount: " + item.Item.ItemCount() +
-                                        "\tBagID: " + item.BagId);
+                                    inventory.AddItem(item);
+                                    //Logging.Write("Name: {0} Count: {1} BagId: {2} IsHQ: {3}", item.Item.EnglishName, item.Item.StackSize, item.BagId, item.Item.IsHighQuality);
+
+                                    
                                 }
                                 catch (Exception e)
                                 {
@@ -154,7 +159,7 @@ namespace Retainers
 
                         RetainerTasks.CloseInventory();
 
-                        await Coroutine.Sleep(2000);
+                        await Coroutine.Sleep(1000);
 
                         //Call quit in tasks and get through dialog
 
@@ -169,14 +174,18 @@ namespace Retainers
                             Next();
                         }
 
-                        await Coroutine.Sleep(5000);
+                        await Coroutine.Sleep(3000);
 
                         Log("Should be back at retainer list by now");
+
+                        inventory.PrintList();
                     }
 
                 }
 
                 RetainerList.Close();
+
+                TreeRoot.Stop("Stop Requested");
 
                 done = true;
 
@@ -208,14 +217,21 @@ namespace Retainers
 /* This only works with the Yield but the yield also throws exceptions (but still works) */
             if (bell.Distance2D(Core.Me.Location) >= 3)
             {
-                await CommonBehaviors.MoveAndStop(
-                    r => bell.Location, r => 2.5f, true,
-                    "Moving to the Bell")
-                    .ExecuteCoroutine();
+//                await CommonBehaviors.MoveAndStop(
+//                    r => bell.Location, r => 2.5f, true,
+//                    "Moving to the Bell")
+//                    .ExecuteCoroutine();
 
+
+                MoveSummoningBell(bell.Location);
+                //TaskAwaiter awaiter2 = Coroutine.Yield().GetAwaiter();
+                //await CommonTasks.MoveAndStop(new MoveToParameters(bell.Location, "Summoning Bell"), 2f, true);
+                
+
+                //await CommonTasks.StopMoving();
                 try
                 {
-                    Coroutine.Yield();
+                  // await Coroutine.Yield();
                 }
                 catch (Exception)
                 {
@@ -240,5 +256,17 @@ namespace Retainers
             return false;
         }
 
+
+        private async void MoveSummoningBell(Vector3 loc)
+        {
+            await CommonBehaviors.MoveAndStop(
+    r => loc, r => 2.5f, true,
+    "Moving to the Bell")
+    .ExecuteCoroutine();
+
+            await Coroutine.Yield();
+
+            
+        }
 }
 }
