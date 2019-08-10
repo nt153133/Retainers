@@ -28,13 +28,13 @@ namespace Retainers
             {
                 RaptureAtkUnitManager.GetWindowByName(windowName).SendAction(2, 3UL, 2UL, 3UL, (ulong) index);
 
-                await Coroutine.Sleep(1000);
+                await Coroutine.Sleep(500);
 
                 await Coroutine.Wait(9000, () => DialogOpen);
 
                 if (DialogOpen) Next();
 
-                await Coroutine.Sleep(1000);
+                await Coroutine.Sleep(500);
 
                 if (SelectString.IsOpen)
                     return true;
