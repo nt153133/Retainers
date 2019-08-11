@@ -44,7 +44,7 @@ namespace Retainers
             }
         }
 
-        public bool FilterStackable(BagSlot item)
+        public static bool FilterStackable(BagSlot item)
         {
 
             if (item.IsCollectable)
