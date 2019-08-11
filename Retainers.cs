@@ -143,7 +143,12 @@ namespace Retainers
                         foreach (var item in (ff14bot.Managers.InventoryManager.FilledSlots.Where(x => x.BagId == InventoryBagId.Bag1 || x.BagId == InventoryBagId.Bag2 || x.BagId == InventoryBagId.Bag3 || x.BagId == InventoryBagId.Bag4)).Where(RetainerInventory.FilterStackable))
                         {
                             if (inventory.HasItem(item.TrueItemId))
-                                Log("BOTH PLAYER AND RETAINER HAVE Name: " + item.Item.EnglishName + "\tItemCategory: " + item.Item.EquipmentCatagory + "\tId: " + item.Item.Id);
+                            {
+                                Log("BOTH PLAYER AND RETAINER HAVE Name: " + item.Item.EnglishName +
+                                    "\tItemCategory: " + item.Item.EquipmentCatagory + "\tId: " + item.Item.Id);
+                                item.Move(inventory.GetItem(item.TrueItemId));
+                                await Coroutine.Sleep(500);
+                            }
                         }
 
                         Log("Done checking against player inventory");
@@ -170,7 +175,7 @@ namespace Retainers
 
                         Log("Should be back at retainer list by now");
 
-                        inventory.PrintList();
+                        //inventory.PrintList();
                     }
                 }
 
