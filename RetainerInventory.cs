@@ -43,5 +43,20 @@ namespace Retainers
                 //Console.WriteLine("Key: {0}, Value: {1}", item.Key, item.Value);
             }
         }
+
+        public bool FilterStackable(BagSlot item)
+        {
+
+            if (item.IsCollectable)
+                return false;
+
+            if (item.Item.StackSize < 2)
+                return false;
+
+            if (item.Count == item.Item.StackSize)
+                return false;
+
+            return true;
+        }
     }
 }
