@@ -90,7 +90,7 @@ namespace Retainers
                 Log(" ");
 
                 var retainerIndex = 0;
-                var numRetainers = 2;
+                var numRetainers = 6;
                 //       bool test = false;
 
 
@@ -124,7 +124,7 @@ namespace Retainers
                         Log("Inventory open");
                         foreach (var retbag in InventoryManager.GetBagsByInventoryBagId(RetainerTasks
                             .RetainerBagIds))
-                        foreach (var item in retbag.FilledSlots)
+                        foreach (BagSlot item in retbag.FilledSlots.Where(RetainerInventory.FilterStackable))
                             try
                             {
                                 inventory.AddItem(item);
@@ -147,7 +147,7 @@ namespace Retainers
                                 Log("BOTH PLAYER AND RETAINER HAVE Name: " + item.Item.EnglishName +
                                     "\tItemCategory: " + item.Item.EquipmentCatagory + "\tId: " + item.Item.Id);
                                 item.Move(inventory.GetItem(item.TrueItemId));
-                                await Coroutine.Sleep(500);
+                                await Coroutine.Sleep(200);
                             }
                         }
 
