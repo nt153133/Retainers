@@ -147,7 +147,8 @@ namespace Retainers
                             {
                                 Log("BOTH PLAYER AND RETAINER HAVE Name: " + item.Item.EnglishName +
                                     "\tItemCategory: " + item.Item.EquipmentCatagory + "\tId: " + item.Item.Id);
-                                item.Move(inventory.GetItem(item.TrueItemId));
+                                Log("Moved: " + RetainerInventory.MoveItem(item, inventory.GetItem(item.TrueItemId)));
+                                //item.Move(inventory.GetItem(item.TrueItemId));
                                 await Coroutine.Sleep(200);
                             }
                         }

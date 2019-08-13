@@ -58,5 +58,21 @@ namespace Retainers
 
             return true;
         }
+
+        public static uint NormalRawId(uint trueItemId)
+        {
+            if (trueItemId > 1000000U)
+                return trueItemId - 1000000U;
+
+            return trueItemId;
+        }
+
+        public static bool MoveItem(BagSlot fromBagSlot, BagSlot toBagSlot)
+        {
+            if ((fromBagSlot.Count + toBagSlot.Count) > toBagSlot.Item.StackSize)
+                return false;
+
+            return fromBagSlot.Move(toBagSlot);
+        }
     }
 }
