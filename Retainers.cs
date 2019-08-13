@@ -101,11 +101,9 @@ namespace Retainers
 
                     if (!RetainerList.IsOpen) await UseSummoningBell();
 
-                    await Coroutine.Sleep(500);
-
                     await Coroutine.Wait(5000, () => RetainerList.IsOpen);
 
-                    //await Coroutine.Sleep(100);
+                    await Coroutine.Sleep(1000);
 
                     if (!RetainerList.IsOpen) Log("Failed opening retainer list");
 
