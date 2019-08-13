@@ -11,6 +11,7 @@ using ff14bot.Behavior;
 using ff14bot.Enums;
 using ff14bot.Helpers;
 using ff14bot.Managers;
+using ff14bot.Pathing;
 using ff14bot.Navigation;
 using ff14bot.Objects;
 using ff14bot.Pathing.Service_Navigation;
@@ -100,9 +101,11 @@ namespace Retainers
 
                     if (!RetainerList.IsOpen) await UseSummoningBell();
 
+                    await Coroutine.Sleep(500);
+
                     await Coroutine.Wait(5000, () => RetainerList.IsOpen);
 
-                    await Coroutine.Sleep(1000);
+                    //await Coroutine.Sleep(100);
 
                     if (!RetainerList.IsOpen) Log("Failed opening retainer list");
 
@@ -211,40 +214,36 @@ namespace Retainers
 
             Logging.Write("Found nearest bell: {0} Distance: {1}", bell, bell.Distance2D(Core.Me.Location));
 
-/* This only works with the Yield but the yield also throws exceptions (but still works) */
             if (bell.Distance2D(Core.Me.Location) >= 3)
             {
-//                await CommonBehaviors.MoveAndStop(
-//                    r => bell.Location, r => 2.5f, true,
-//                    "Moving to the Bell")
-//                    .ExecuteCoroutine();
-
-
-                MoveSummoningBell(bell.Location);
+                await MoveSummoningBell(bell.Location);
+                if (bell.Distance2D(Core.Me.Location) >= 3) return false;
             }
+            bell.Interact();
+            // No need to wait on IsOpen when we already do it in the main task.
+            // await Coroutine.Wait(5000, () => RetainerList.IsOpen);
+            Logging.Write("Summoning Bell Used");
 
-            if (bell.Distance2D(Core.Me.Location) <= 3)
-            {
-                bell.Target();
-                bell.Interact();
-                await Coroutine.Sleep(1000);
-
-                await Coroutine.Wait(5000, () => RetainerList.IsOpen);
-                Logging.Write("Summoning Bell Used");
-            }
-
-            return false;
+            return true;
         }
 
 
-        private async void MoveSummoningBell(Vector3 loc)
+        private static async Task<bool> MoveSummoningBell(Vector3 loc)
         {
-            await CommonBehaviors.MoveAndStop(
-                    r => loc, r => 2.5f, true,
-                    "Moving to the Bell")
-                .ExecuteCoroutine();
+            var moving = MoveResult.GeneratingPath;
+            while (!(moving == MoveResult.Done ||
+                     moving == MoveResult.ReachedDestination ||
+                     moving == MoveResult.Failed ||
+                     moving == MoveResult.Failure ||
+                     moving == MoveResult.PathGenerationFailed))
+            {
 
-            await Coroutine.Yield();
+                moving = Flightor.MoveTo(new FlyToParameters(loc));
+
+                await Coroutine.Yield();
+            }
+
+            return true;
         }
     }
 }
