@@ -24,6 +24,8 @@ namespace Retainers
 
         private bool _deposit;
 
+        private bool _debug;
+
         private int _numOfRetainers;
 
 
@@ -58,6 +60,21 @@ namespace Retainers
                 if (_numOfRetainers != value)
                 {
                     _numOfRetainers = value;
+                    Save();
+                }
+            }
+        }
+
+        [Description("Print verbose debug info")]
+        [DefaultValue(false)] //shift +x
+        public bool DebugLogging
+        {
+            get => _debug;
+            set
+            {
+                if (_debug != value)
+                {
+                    _debug = value;
                     Save();
                 }
             }
