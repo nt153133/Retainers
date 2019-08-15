@@ -247,21 +247,68 @@ namespace Retainers
 
                 LogCritical("Duplicate items Found:");
 
-                foreach (var itemId in masterInventory.Where(r => r.Value.Count > 1))
+                if (debug)
                 {
-                    string retainers = "";
-                    List<KeyValuePair<int, uint>> retListInv = new List<KeyValuePair<int, uint>>(itemId.Value.OrderByDescending(r => r.Value));itemId.Value.OrderByDescending(r => r.Value);
-                    foreach (var retainerId in retListInv)
+                    foreach (var itemId in masterInventory.Where(r => r.Value.Count > 1))
                     {
-                        retainers += $"Retainer[{retainerId.Key}] has {retainerId.Value} ";
-                    }
+                        string retainers = "";
+                        List<KeyValuePair<int, uint>> retListInv = new List<KeyValuePair<int, uint>>(itemId.Value.OrderByDescending(r => r.Value)); itemId.Value.OrderByDescending(r => r.Value);
+                        foreach (var retainerId in retListInv)
+                        {
+                            retainers += $"Retainer[{retainerId.Key}] has {retainerId.Value} ";
+                        }
 
-                    Log("Item {0}: {1}", itemId.Key, retainers);
+                        Log("Item {0}: {1}", itemId.Key, retainers);
+                    } 
                 }
 
                 /*
-                 * Same as above but before the second foreach save retainer
+                 * Same as above but before the second foreach save retainer/count
+                 * remove that one since it's where we're going to move stuff to
                  */
+                int numOfMoves = 0;
+                foreach (var itemId in masterInventory.Where(r => r.Value.Count > 1))
+                {
+                    List<KeyValuePair<int, uint>> retListInv = new List<KeyValuePair<int, uint>>(itemId.Value.OrderByDescending(r => r.Value)); itemId.Value.OrderByDescending(r => r.Value);
+
+                    int retainerTemp = retListInv[0].Key;
+                    uint countTemp = retListInv[0].Value;
+
+                    string retainers = "";
+
+                    retListInv.RemoveAt(0);
+
+                    
+                    foreach (var retainerId in retListInv)
+                    {
+                        retainers += $"Retainer[{retainerId.Key}] has {retainerId.Value} ";
+                        countTemp += retainerId.Value;
+                    }
+
+                    Log("Item {0} Total:{3} should be in {1} and {2}", itemId.Key, retainerTemp, retainers, countTemp);
+
+                    if (countTemp > 999)
+                    {
+                        LogCritical("This item will have a stack size over 999: {0}", itemId.Key);
+                        LogCritical("Removing {0} moves", retListInv.Count);
+                        numOfMoves -= retListInv.Count;
+                    }
+                    else
+                    {
+                        numOfMoves++;
+                    }
+                }
+
+                LogCritical("Looks like we need to do {0} moves", numOfMoves);
+
+                if (numOfMoves < InventoryManager.FreeSlots)
+                {
+                    LogCritical("Looks like we have {0} free spaces in inventory so we can just dump into player inventory", InventoryManager.FreeSlots);
+                }
+                else
+                {
+                    LogCritical("Crap, we don't have enough player inventory to dump it all here");
+                }
 
                 LogVerbose("Closing Retainer List");
 
