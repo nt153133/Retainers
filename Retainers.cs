@@ -25,6 +25,8 @@ namespace Retainers
     {
         private static readonly string botName = "Retainers Test";
 
+        private SettingsForm settings;
+
         private static bool done;
 
         private Composite _root;
@@ -54,9 +56,18 @@ namespace Retainers
 
         public override void OnButtonPress()
         {
-            //forceWater = true;
+            if (settings == null || settings.IsDisposed)
+                settings = new SettingsForm();
+            try
+            {
+                settings.Show();
+                settings.Activate();
+            }
+            catch (ArgumentOutOfRangeException ee)
+            {
+            }
         }
-
+        
         private static void Log(string text, params object[] args)
         {
             var msg = string.Format("[" + botName + "] " + text, args);
@@ -91,8 +102,11 @@ namespace Retainers
                 Log(" ");
 
                 var retainerIndex = 0;
-                var numRetainers = 6;
+                var numRetainers = RetainerSettings.Instance.NumberOfRetainers;
+                List<RetainerInventory> retList = new List<RetainerInventory>();
                 //       bool test = false;
+
+                
 
 
                 for (retainerIndex = 0; retainerIndex < numRetainers; retainerIndex++)
@@ -123,19 +137,18 @@ namespace Retainers
                     if (RetainerTasks.IsInventoryOpen())
                     {
                         Log("Inventory open");
-                        foreach (var retbag in InventoryManager.GetBagsByInventoryBagId(RetainerTasks
-                            .RetainerBagIds))
-                        foreach (BagSlot item in retbag.FilledSlots.Where(RetainerInventory.FilterStackable))
-                            try
-                            {
-                                inventory.AddItem(item);
-                                //Logging.Write("Name: {0} Count: {1} BagId: {2} IsHQ: {3}", item.Item.EnglishName, item.Item.StackSize, item.BagId, item.Item.IsHighQuality);
-                            }
-                            catch (Exception e)
-                            {
-                                Log("SHIT:" + e);
-                                throw;
-                            }
+                        foreach (var retbag in InventoryManager.GetBagsByInventoryBagId(RetainerTasks.RetainerBagIds))
+                            foreach (BagSlot item in retbag.FilledSlots.Where(RetainerInventory.FilterStackable))
+                                try
+                                {
+                                    inventory.AddItem(item);
+                                    //Logging.Write("Name: {0} Count: {1} BagId: {2} IsHQ: {3}", item.Item.EnglishName, item.Item.StackSize, item.BagId, item.Item.IsHighQuality);
+                                }
+                                catch (Exception e)
+                                {
+                                    Log("SHIT:" + e);
+                                    throw;
+                                }
 
                         Log("Inventory done");
 
@@ -147,7 +160,9 @@ namespace Retainers
                             {
                                 Log("BOTH PLAYER AND RETAINER HAVE Name: " + item.Item.EnglishName +
                                     "\tItemCategory: " + item.Item.EquipmentCatagory + "\tId: " + item.Item.Id);
-                                Log("Moved: " + RetainerInventory.MoveItem(item, inventory.GetItem(item.TrueItemId)));
+
+                                if (RetainerSettings.Instance.DepositFromPlayer)
+                                    Log("Moved: " + RetainerInventory.MoveItem(item, inventory.GetItem(item.TrueItemId)));
                                 //item.Move(inventory.GetItem(item.TrueItemId));
                                 await Coroutine.Sleep(200);
                             }
@@ -179,6 +194,8 @@ namespace Retainers
 
                         //inventory.PrintList();
                     }
+
+                    retList.Add(inventory);
                 }
 
                 //await Coroutine.Sleep(1000);
@@ -187,7 +204,8 @@ namespace Retainers
 
                 RetainerList.Close();
 
-                TreeRoot.Stop("Stop Requested");
+
+                TreeRoot.Stop("Done playing with retainers");
 
                 done = true;
             }
@@ -220,7 +238,7 @@ namespace Retainers
             }
             bell.Interact();
             // No need to wait on IsOpen when we already do it in the main task.
-            // await Coroutine.Wait(5000, () => RetainerList.IsOpen);
+            await Coroutine.Wait(5000, () => RetainerList.IsOpen);
             Logging.Write("Summoning Bell Used");
 
             return true;
