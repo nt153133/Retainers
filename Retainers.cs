@@ -16,6 +16,7 @@ using ff14bot.Pathing;
 using ff14bot.Navigation;
 using ff14bot.Objects;
 using ff14bot.Pathing.Service_Navigation;
+using QuickGraph;
 using TreeSharp;
 using static ff14bot.RemoteWindows.Talk;
 
@@ -249,14 +250,18 @@ namespace Retainers
                 foreach (var itemId in masterInventory.Where(r => r.Value.Count > 1))
                 {
                     string retainers = "";
-
-                    foreach (var retainerId in itemId.Value)
+                    List<KeyValuePair<int, uint>> retListInv = new List<KeyValuePair<int, uint>>(itemId.Value.OrderByDescending(r => r.Value));itemId.Value.OrderByDescending(r => r.Value);
+                    foreach (var retainerId in retListInv)
                     {
                         retainers += $"Retainer[{retainerId.Key}] has {retainerId.Value} ";
                     }
 
                     Log("Item {0}: {1}", itemId.Key, retainers);
                 }
+
+                /*
+                 * Same as above but before the second foreach save retainer
+                 */
 
                 LogVerbose("Closing Retainer List");
 
