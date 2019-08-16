@@ -429,13 +429,126 @@ namespace Retainers
                 else
                 {
                     if (numOfMoves <= 0)
+                    {
                         LogCritical("No duplicate stacks found so no moved needed.");
+                        RetainerList.Close();
+
+
+                        TreeRoot.Stop("Done playing with retainers");
+                        return true;
+                    }
                     else
                     {
-                        LogCritical("Crap, we don't have enough player inventory to dump it all here");    
+                        LogCritical("Crap, we don't have enough player inventory to dump it all here");
+                        RetainerList.Close();
+
+
+                        TreeRoot.Stop("Done playing with retainers");
+                        return false;
                     }
                     
                 }
+
+                for (int retainerIndex = 0; retainerIndex < numRetainers; retainerIndex++)
+                {
+                    var inventory = new RetainerInventory();
+
+                    if (!RetainerList.IsOpen) await UseSummoningBell();
+
+                    await Coroutine.Wait(5000, () => RetainerList.IsOpen);
+
+                    await Coroutine.Sleep(1000);
+
+                    if (!RetainerList.IsOpen) Log("Failed opening retainer list");
+
+                    LogVerbose("Open:" + RetainerList.IsOpen);
+
+                    await RetainerList.SelectRetainer(retainerIndex);
+
+                    Log("Selected Retainer: " + retainerIndex);
+
+
+                    await Coroutine.Wait(5000, () => RetainerTasks.IsOpen);
+
+                    RetainerTasks.OpenInventory();
+
+                    await Coroutine.Sleep(500);
+
+                    if (RetainerTasks.IsInventoryOpen())
+                    {
+                        LogVerbose("Inventory open");
+                        foreach (var retbag in InventoryManager.GetBagsByInventoryBagId(RetainerTasks.RetainerBagIds))
+                            foreach (BagSlot item in retbag.FilledSlots.Where(RetainerInventory.FilterStackable))
+                                try
+                                {
+                                    inventory.AddItem(item);
+                                    if (masterInventory.ContainsKey(item.TrueItemId))
+                                    {
+                                        masterInventory[item.TrueItemId].Add(new KeyValuePair<int, uint>(retainerIndex, item.Count));
+                                    }
+                                    else
+                                    {
+                                        masterInventory.Add(item.TrueItemId, new List<KeyValuePair<int, uint>>());
+                                        masterInventory[item.TrueItemId].Add(new KeyValuePair<int, uint>(retainerIndex, item.Count));
+                                    }
+                                    //Logging.Write("Name: {0} Count: {1} BagId: {2} IsHQ: {3}", item.Item.EnglishName, item.Item.StackSize, item.BagId, item.Item.IsHighQuality);
+                                }
+                                catch (Exception e)
+                                {
+                                    Log("SHIT:" + e);
+                                    throw;
+                                }
+
+                        LogVerbose("Inventory done");
+
+                        Log("Checking retainer[{0}] against player inventory", retainerIndex);
+
+                        foreach (var item in (ff14bot.Managers.InventoryManager.FilledSlots.Where(x => x.BagId == InventoryBagId.Bag1 || x.BagId == InventoryBagId.Bag2 || x.BagId == InventoryBagId.Bag3 || x.BagId == InventoryBagId.Bag4)).Where(RetainerInventory.FilterStackable))
+                        {
+                            if (inventory.HasItem(item.TrueItemId))
+                            {
+                                Log("BOTH PLAYER AND RETAINER HAVE Name: " + item.Item.EnglishName +
+                                    "\tItemCategory: " + item.Item.EquipmentCatagory + "\tId: " + item.Item.Id);
+
+                                if (RetainerSettings.Instance.DepositFromPlayer)
+                                {
+                                    Log("Moved: " + RetainerInventory.MoveItem(item,
+                                            inventory.GetItem(item.TrueItemId)));
+                                    await Coroutine.Sleep(200);
+                                }
+                            }
+                        }
+
+                        Log("Done checking against player inventory");
+
+                        RetainerTasks.CloseInventory();
+
+                        await Coroutine.Wait(3000, () => RetainerTasks.IsOpen);
+
+                        //await Coroutine.Sleep(1000);
+
+                        //Call quit in tasks and get through dialog
+
+                        RetainerTasks.CloseTasks();
+
+                        await Coroutine.Sleep(500);
+
+                        await Coroutine.Wait(3000, () => DialogOpen);
+
+                        if (DialogOpen) Next();
+
+                        await Coroutine.Sleep(200);
+
+                        await Coroutine.Wait(3000, () => RetainerList.IsOpen);
+
+                        LogVerbose("Should be back at retainer list by now");
+
+                        //inventory.PrintList();
+                    }
+
+                    retList.Add(inventory);
+                }
+
 
                 LogVerbose("Closing Retainer List");
 
