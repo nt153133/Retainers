@@ -35,7 +35,15 @@ namespace Retainers
 
         private Composite _root;
 
-
+        private static InventoryBagId[] inventoryBagId_0 = new InventoryBagId[6]
+{
+      InventoryBagId.Bag1,
+      InventoryBagId.Bag2,
+      InventoryBagId.Bag3,
+      InventoryBagId.Bag4,
+      InventoryBagId.Bag5,
+      InventoryBagId.Bag6
+};
         public override string Name
         {
             get
@@ -122,9 +130,14 @@ namespace Retainers
                 List<RetainerInventory> retList = new List<RetainerInventory>();
                 List<KeyValuePair<uint,int>> moveToOrder = new List<KeyValuePair<uint, int>>();
                 Dictionary<uint, List<KeyValuePair<int,uint>>> masterInventory = new Dictionary<uint, List<KeyValuePair<int, uint>>>();
-                //       bool test = false;
 
-                
+                //Moves
+                List<uint>[] moveFrom = new List<uint>[numRetainers];
+
+                for (int retainerIndex = 0; retainerIndex < numRetainers; retainerIndex++)
+                {
+                    moveFrom[retainerIndex] = new List<uint>();
+                }
 
 
                 for (int retainerIndex = 0; retainerIndex < numRetainers; retainerIndex++)
@@ -290,24 +303,138 @@ namespace Retainers
                     if (countTemp > 999)
                     {
                         LogCritical("This item will have a stack size over 999: {0}", itemId.Key);
-                        LogCritical("Removing {0} moves", retListInv.Count);
-                        numOfMoves -= retListInv.Count;
+                        //LogCritical("Removing {0} moves", retListInv.Count);
+                        //numOfMoves -= retListInv.Count;
                     }
                     else
-                    {
+                    { 
                         numOfMoves++;
+                        foreach (var retainerIdTemp in retListInv)
+                            moveFrom[retainerIdTemp.Key].Add(itemId.Key);
+                        
                     }
                 }
 
                 LogCritical("Looks like we need to do {0} moves", numOfMoves);
 
-                if (numOfMoves < InventoryManager.FreeSlots)
+                if ((numOfMoves < InventoryManager.FreeSlots) && numOfMoves > 0)
                 {
                     LogCritical("Looks like we have {0} free spaces in inventory so we can just dump into player inventory", InventoryManager.FreeSlots);
+
+                    //First loop
+                    for (int retainerIndex = 0; retainerIndex < numRetainers; retainerIndex++)
+                    {
+                        var inventory = new RetainerInventory();
+
+                        if (!RetainerList.IsOpen) await UseSummoningBell();
+
+                        await Coroutine.Wait(5000, () => RetainerList.IsOpen);
+
+                        await Coroutine.Sleep(1000);
+
+                        if (!RetainerList.IsOpen) Log("Failed opening retainer list");
+
+                        LogVerbose("Open:" + RetainerList.IsOpen);
+
+                        await RetainerList.SelectRetainer(retainerIndex);
+
+                        Log("Selected Retainer: " + retainerIndex);
+
+
+                        await Coroutine.Wait(5000, () => RetainerTasks.IsOpen);
+
+                        RetainerTasks.OpenInventory();
+
+                        await Coroutine.Sleep(500);
+
+                        if (RetainerTasks.IsInventoryOpen())
+                        {
+                            LogVerbose("Inventory open");
+                            foreach (var retbag in InventoryManager.GetBagsByInventoryBagId(RetainerTasks.RetainerBagIds))
+                                foreach (BagSlot item in retbag.FilledSlots.Where(RetainerInventory.FilterStackable))
+                                    try
+                                    {
+                                        inventory.AddItem(item);
+                                        if (masterInventory.ContainsKey(item.TrueItemId))
+                                        {
+                                            masterInventory[item.TrueItemId].Add(new KeyValuePair<int, uint>(retainerIndex, item.Count));
+                                        }
+                                        else
+                                        {
+                                            masterInventory.Add(item.TrueItemId, new List<KeyValuePair<int, uint>>());
+                                            masterInventory[item.TrueItemId].Add(new KeyValuePair<int, uint>(retainerIndex, item.Count));
+                                        }
+                                        //Logging.Write("Name: {0} Count: {1} BagId: {2} IsHQ: {3}", item.Item.EnglishName, item.Item.StackSize, item.BagId, item.Item.IsHighQuality);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Log("SHIT:" + e);
+                                        throw;
+                                    }
+
+                            LogVerbose("Inventory done");
+
+                            Log("Checking retainer[{0}] against move list", retainerIndex);
+
+
+                            foreach (var item in moveFrom[retainerIndex])
+                            {
+                                bool moved = false;
+                                if (inventory.HasItem(item))
+                                {
+                                    foreach (var bagId in InventoryManager.GetBagsByInventoryBagId(inventoryBagId_0))
+                                    {
+                                        if (moved)
+                                            break;
+
+                                        foreach (var bagslot in bagId)
+                                        {
+                                            if (!bagslot.IsFilled)
+                                            {
+                                                Log("Moved: " + inventory.GetItem(item).Move(bagslot));
+                                                await Coroutine.Sleep(200);
+                                                moved = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            Log("Done checking against player inventory");
+
+                            RetainerTasks.CloseInventory();
+
+                            await Coroutine.Wait(3000, () => RetainerTasks.IsOpen);
+
+                            RetainerTasks.CloseTasks();
+
+                            await Coroutine.Sleep(500);
+
+                            await Coroutine.Wait(3000, () => DialogOpen);
+
+                            if (DialogOpen) Next();
+
+                            await Coroutine.Sleep(200);
+
+                            await Coroutine.Wait(3000, () => RetainerList.IsOpen);
+
+                            LogVerbose("Should be back at retainer list by now");
+
+                            //inventory.PrintList();
+                        }
+
+                    }
                 }
                 else
                 {
-                    LogCritical("Crap, we don't have enough player inventory to dump it all here");
+                    if (numOfMoves <= 0)
+                        LogCritical("No duplicate stacks found so no moved needed.");
+                    else
+                    {
+                        LogCritical("Crap, we don't have enough player inventory to dump it all here");    
+                    }
+                    
                 }
 
                 LogVerbose("Closing Retainer List");
