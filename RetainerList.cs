@@ -54,5 +54,6 @@ namespace Retainers
                 return;
             RaptureAtkUnitManager.GetWindowByName(windowName).SendAction(1, 3UL, (ulong) uint.MaxValue);
         }
+
     }
 }
