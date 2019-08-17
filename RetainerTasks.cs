@@ -7,12 +7,6 @@ namespace Retainers
 {
     internal class RetainerTasks
     {
-        public static InventoryBagId[] RetainerBagIds =
-        {
-            InventoryBagId.Retainer_Page1, InventoryBagId.Retainer_Page2, InventoryBagId.Retainer_Page3,
-            InventoryBagId.Retainer_Page4, InventoryBagId.Retainer_Page5, InventoryBagId.Retainer_Page6,
-            InventoryBagId.Retainer_Page7
-        };
 
         public static bool IsOpen => SelectString.IsOpen;
 

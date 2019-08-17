@@ -50,6 +50,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HelperFunctions.cs" />
     <Compile Include="RetainerSettings.cs" />
     <Compile Include="RetainerInventory.cs" />
     <Compile Include="RetainerTasks.cs" />

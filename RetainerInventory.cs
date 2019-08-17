@@ -39,40 +39,7 @@ namespace Retainers
                 var item = slot.Value;
                 Logging.Write("Name: {0} Count: {1} RawId: {2} IsHQ: {3} TrueID: {4} ", item.Item.EnglishName,
                     item.Count, item.RawItemId, item.Item.IsHighQuality, item.TrueItemId);
-
-                //Console.WriteLine("Key: {0}, Value: {1}", item.Key, item.Value);
             }
-        }
-
-        public static bool FilterStackable(BagSlot item)
-        {
-
-            if (item.IsCollectable)
-                return false;
-
-            if (item.Item.StackSize < 2)
-                return false;
-
-            if (item.Count == item.Item.StackSize)
-                return false;
-
-            return true;
-        }
-
-        public static uint NormalRawId(uint trueItemId)
-        {
-            if (trueItemId > 1000000U)
-                return trueItemId - 1000000U;
-
-            return trueItemId;
-        }
-
-        public static bool MoveItem(BagSlot fromBagSlot, BagSlot toBagSlot)
-        {
-            if ((fromBagSlot.Count + toBagSlot.Count) > toBagSlot.Item.StackSize)
-                return false;
-
-            return fromBagSlot.Move(toBagSlot);
         }
     }
 }
