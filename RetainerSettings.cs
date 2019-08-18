@@ -26,6 +26,10 @@ namespace Retainers
 
         private bool _debug;
 
+        private bool _gil;
+
+        private bool _merge;
+
         private int _numOfRetainers;
 
 
@@ -50,21 +54,6 @@ namespace Retainers
             }
         }
 
-        [Description("How many retainers do you have? (warning setting higher then you have will crash game)")]
-        [DefaultValue(2)]
-        public int NumberOfRetainers
-        {
-            get => _numOfRetainers;
-            set
-            {
-                if (_numOfRetainers != value)
-                {
-                    _numOfRetainers = value;
-                    Save();
-                }
-            }
-        }
-
         [Description("Print verbose debug info")]
         [DefaultValue(false)] //shift +x
         public bool DebugLogging
@@ -80,6 +69,36 @@ namespace Retainers
             }
         }
 
+        [Description("Withdrawal Gil from each retainer")]
+        [DefaultValue(true)] //shift +x
+        public bool GetGil
+        {
+            get => _gil;
+            set
+            {
+                if (_gil != value)
+                {
+                    _gil = value;
+                    Save();
+                }
+            }
+        }
+
+
+        [Description("Don't try and merge duplicate item stacks between retainers")]
+        [DefaultValue(false)] //shift +x
+        public bool DontOrganizeRetainers
+        {
+            get => _merge;
+            set
+            {
+                if (_merge != value)
+                {
+                    _merge = value;
+                    Save();
+                }
+            }
+        }
     }
 
 }

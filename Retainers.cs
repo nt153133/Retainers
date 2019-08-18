@@ -175,6 +175,10 @@ namespace Retainers
                     }
 
                     Log("Selected Retainer: " + retainerNames[retainerIndex]);
+
+                    if (RetainerSettings.Instance.GetGil)
+                        HelperFunctions.GetRetainerGil();
+
                     RetainerTasks.OpenInventory();
                     await Coroutine.Wait(5000, RetainerTasks.IsInventoryOpen);
 
@@ -207,7 +211,7 @@ namespace Retainers
 
                         LogVerbose("Inventory done");
 
-                        Log("Checking retainer[{0}] against player inventory", retainerIndex);
+                        Log("Checking retainer[{0}] against player inventory", retainerNames[retainerIndex]);
 
                         foreach (var item in InventoryManager.FilledSlots.Where(x => x.BagId == InventoryBagId.Bag1 || x.BagId == InventoryBagId.Bag2 || x.BagId == InventoryBagId.Bag3 || x.BagId == InventoryBagId.Bag4).Where(FilterStackable))
                             if (inventory.HasItem(item.TrueItemId))
@@ -252,6 +256,15 @@ namespace Retainers
                 }
 
                 //await Coroutine.Sleep(1000);
+
+                if (RetainerSettings.Instance.DontOrganizeRetainers || !RetainerSettings.Instance.DepositFromPlayer)
+                {
+                    RetainerList.Close();
+
+
+                    TreeRoot.Stop("Done playing with retainers (Don't organize or don't deposit items.)");
+                    return true;
+                }
 
 
                 if (debug)

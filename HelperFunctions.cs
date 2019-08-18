@@ -133,5 +133,27 @@ namespace Retainers
         {
             return InventoryManager.FilledSlots.Where(x => x.BagId == InventoryBagId.Bag1 || x.BagId == InventoryBagId.Bag2 || x.BagId == InventoryBagId.Bag3 || x.BagId == InventoryBagId.Bag4).Where(FilterStackable);
         }
+
+        public static bool GetRetainerGil()
+        {
+            BagSlot retainerGilSlot = null;
+            BagSlot playerGilSlot = null;
+
+            foreach (var item in InventoryManager.GetBagByInventoryBagId(PlayerGilId).Where(r => r.IsFilled))
+                if (item.RawItemId == GilItemId)
+                { playerGilSlot = item; break; }
+
+            foreach (var item in InventoryManager.GetBagByInventoryBagId(RetainerGilId).Where(r => r.IsFilled))
+                if (item.RawItemId == GilItemId)
+                { retainerGilSlot = item; break; }
+
+            if (retainerGilSlot != null && playerGilSlot != null && retainerGilSlot.Count > 0)
+            {
+                LogCritical("Retainer: {0}  Player: {1}", String.Format("{0:n0}", retainerGilSlot.Count), String.Format("{0:n0}", playerGilSlot.Count));
+                return retainerGilSlot.Move(playerGilSlot);
+            }
+
+            return false;
+        }
     }
 }
