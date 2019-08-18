@@ -125,6 +125,11 @@ namespace Retainers
 
                 //Settings variables
                 debug = RetainerSettings.Instance.DebugLogging;
+
+                await UseSummoningBell();
+                await Coroutine.Wait(5000, () => RetainerList.IsOpen);
+                await Coroutine.Sleep(1000);
+
                 int numRetainers = GetNumberOfRetainers();
 
                 List<RetainerInventory> retList = new List<RetainerInventory>();
