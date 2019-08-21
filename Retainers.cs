@@ -170,6 +170,9 @@ namespace Retainers
 
                     LogVerbose("Open:" + RetainerList.IsOpen);
 
+                    await Coroutine.Wait(5000, () => RetainerList.IsOpen);
+
+                    await Coroutine.Sleep(1000);
                     await RetainerList.SelectRetainer(retainerIndex);
                     await Coroutine.Sleep(200);
                     await Coroutine.Wait(5000, () => RetainerTasks.IsOpen);
