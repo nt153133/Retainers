@@ -127,7 +127,7 @@ namespace Retainers
                 debug = RetainerSettings.Instance.DebugLogging;
 
                 await UseSummoningBell();
-                await Coroutine.Wait(5000, () => RetainerList.IsOpen);
+                await Coroutine.Wait(5000, () => RetainerList.IsOpen().Result);
                 await Coroutine.Sleep(1000);
 
                 int numRetainers = GetNumberOfRetainers();
@@ -159,18 +159,18 @@ namespace Retainers
                 {
                     var inventory = new RetainerInventory();
 
-                    if (!RetainerList.IsOpen)
+                    if (! await RetainerList.IsOpen())
                     {
                         await UseSummoningBell();
-                        await Coroutine.Wait(5000, () => RetainerList.IsOpen);
+                        await Coroutine.Wait(5000, () => RetainerList.IsOpen().Result);
                         await Coroutine.Sleep(1000);
                     }
 
-                    if (!RetainerList.IsOpen) Log("Failed opening retainer list");
+                    if (! await RetainerList.IsOpen()) Log("Failed opening retainer list");
 
-                    LogVerbose("Open:" + RetainerList.IsOpen);
+                    LogVerbose("Open:" + await RetainerList.IsOpen());
 
-                    await Coroutine.Wait(5000, () => RetainerList.IsOpen);
+                    await Coroutine.Wait(5000, () => RetainerList.IsOpen().Result);
 
                     await Coroutine.Sleep(1000);
                     await RetainerList.SelectRetainer(retainerIndex);
@@ -252,7 +252,7 @@ namespace Retainers
 
                         await Coroutine.Sleep(200);
 
-                        await Coroutine.Wait(3000, () => RetainerList.IsOpen);
+                        await Coroutine.Wait(3000, () => RetainerList.IsOpen().Result);
 
                         LogVerbose("Should be back at retainer list by now");
 
@@ -324,7 +324,7 @@ namespace Retainers
                         countTemp += retainerId.Value;
                     }
 
-                    Log("Item {0} Total:{3} should be in {1} and {2}", itemId.Key, retainerNames[retainerTemp], retainers, countTemp);
+                    Log("Item: {4} ({0}) Total:{3} should be in {1} and {2}", itemId.Key, retainerNames[retainerTemp], retainers, countTemp, DataManager.GetItem(itemId.Key));
 
                     if (countTemp > 999)
                     {
@@ -351,20 +351,20 @@ namespace Retainers
                     {
                         var inventory = new RetainerInventory();
 
-                        if (!RetainerList.IsOpen)
+                        if (! await RetainerList.IsOpen())
                         {
                             await UseSummoningBell();
-                            await Coroutine.Wait(5000, () => RetainerList.IsOpen);
+                            await Coroutine.Wait(5000, () => RetainerList.IsOpen().Result);
                             await Coroutine.Sleep(1000);
                         }
 
-                        await Coroutine.Wait(5000, () => RetainerList.IsOpen);
+                        await Coroutine.Wait(5000, () => RetainerList.IsOpen().Result);
 
                         await Coroutine.Sleep(1000);
 
-                        if (!RetainerList.IsOpen) Log("Failed opening retainer list");
+                        if (! await RetainerList.IsOpen()) Log("Failed opening retainer list");
 
-                        LogVerbose("Open:" + RetainerList.IsOpen);
+                        LogVerbose("Open:" + RetainerList.IsOpen().Result);
                         
                         await RetainerList.SelectRetainer(retainerIndex);
 
@@ -445,7 +445,7 @@ namespace Retainers
 
                             await Coroutine.Sleep(200);
 
-                            await Coroutine.Wait(3000, () => RetainerList.IsOpen);
+                            await Coroutine.Wait(3000, () => RetainerList.IsOpen().Result);
 
                             LogVerbose("Should be back at retainer list by now");
 
@@ -477,20 +477,20 @@ namespace Retainers
                 {
                     var inventory = new RetainerInventory();
 
-                    if (!RetainerList.IsOpen)
+                    if (! await RetainerList.IsOpen())
                     {
                         await UseSummoningBell();
-                        await Coroutine.Wait(5000, () => RetainerList.IsOpen);
+                        await Coroutine.Wait(5000, () => RetainerList.IsOpen().Result);
                         await Coroutine.Sleep(1000);
                     }
 
-                    await Coroutine.Wait(5000, () => RetainerList.IsOpen);
+                    await Coroutine.Wait(5000, () => RetainerList.IsOpen().Result);
 
                     await Coroutine.Sleep(1000);
 
-                    if (!RetainerList.IsOpen) Log("Failed opening retainer list");
+                    if (! await RetainerList.IsOpen()) Log("Failed opening retainer list");
 
-                    LogVerbose("Open:" + RetainerList.IsOpen);
+                    LogVerbose("Open:" + RetainerList.IsOpen().Result);
 
                     await RetainerList.SelectRetainer(retainerIndex);
 
@@ -568,7 +568,7 @@ namespace Retainers
 
                         await Coroutine.Sleep(200);
 
-                        await Coroutine.Wait(3000, () => RetainerList.IsOpen);
+                        await Coroutine.Wait(3000, () => RetainerList.IsOpen().Result);
 
                         LogVerbose("Should be back at retainer list by now");
 
@@ -610,7 +610,7 @@ namespace Retainers
 
             bell.Interact();
             // No need to wait on IsOpen when we already do it in the main task.
-            await Coroutine.Wait(5000, () => RetainerList.IsOpen);
+            await Coroutine.Wait(5000, () => RetainerList.IsOpen().Result);
             LogVerbose("Summoning Bell Used");
 
             return true;

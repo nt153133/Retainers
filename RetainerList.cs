@@ -12,11 +12,11 @@ namespace Retainers
     {
         internal static string windowName = "RetainerList";
 
-        public static bool IsOpen => RaptureAtkUnitManager.GetWindowByName(windowName) != null;
+        public static async Task<bool> IsOpen() => RaptureAtkUnitManager.GetWindowByName(windowName) != null;
 
         public static async Task<bool> SelectRetainer(int index)
         {
-            if (!IsOpen)
+            if (! await IsOpen())
             {
                 Logging.Write("Retainer selection window not open");
                 return false;
