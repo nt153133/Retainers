@@ -49,7 +49,7 @@ namespace Retainers
             get
             {
 #if RB_CN
-                return "栽培模式";
+                return "雇员";
 #else
                 return "Retainers Test";
 #endif
