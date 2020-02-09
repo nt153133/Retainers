@@ -106,7 +106,13 @@ namespace Retainers
         public static GameObject NearestSummoningBell()
         {
             List<GameObject> list = GameObjectManager.GameObjects
-                .Where(r => r.Name == "Summoning Bell")
+                .Where(r => r.Name == 
+#if RB_CN
+                "传唤铃"
+#else
+                "Summoning Bell"
+#endif
+				)
                 .OrderBy(j => j.Distance())
                 .ToList();
 
